@@ -45,6 +45,7 @@ For more customization, you can use the JavaScript or [TypeScript](#using-typesc
 - Updated whenever Metro bundler reloads.
 - Provide environment information to your app.
 - Does not support Promises.
+- Warning: `eas-cli` will not be able to automatically update a standalone dynamic config with the Expo projectId property. If your dynamic config extends a static config, `eas-cli` will update the static config.
 
 For example, you can export an object to define your custom config:
 
