@@ -257,20 +257,9 @@ export async function modifyConfigAsync(
   config: AppJSONConfig | null;
 }> {
   const config = getConfig(projectRoot, readOptions);
-  if (config.dynamicConfigPath) {
-    // We cannot automatically write to a dynamic config.
-    /* Currently we should just use the safest approach possible, informing the user that they'll need to manually modify their dynamic config.
-
-    if (config.staticConfigPath) {
-      // Both a dynamic and a static config exist.
-      if (config.dynamicConfigObjectType === 'function') {
-        // The dynamic config exports a function, this means it possibly extends the static config.
-      } else {
-        // Dynamic config ignores the static config, there isn't a reason to automatically write to it.
-        // Instead we should warn the user to add values to their dynamic config.
-      }
-    }
-    */
+  if (config.dynamicConfigPath && config.dynamicConfigObjectType !== 'function') {
+    // We cannot automatically write to a dynamic config that does not extend a static config.
+    // Currently we should just use the safest approach possible, informing the user that they'll need to manually modify their dynamic config.
     return {
       type: 'warn',
       message: `Cannot automatically write to dynamic config at: ${path.relative(
@@ -279,8 +268,8 @@ export async function modifyConfigAsync(
       )}`,
       config: null,
     };
-  } else if (config.staticConfigPath) {
-    // Static with no dynamic config, this means we can append to the config automatically.
+  } else if (config.staticConfigPath || (config.staticConfigPath && config.dynamicConfigPath && config.dynamicConfigObjectType === 'function')) {
+    // Static with no dynamic config OR dynamic config that extends static config, this means we can append to the static config automatically.
     let outputConfig: AppJSONConfig;
     // If the config has an expo object (app.json) then append the options to that object.
     if (config.rootConfig.expo) {
